@@ -6,6 +6,8 @@ library(purrr)
 library(xml2)
 library(here)
 
+last_updated <- now()
+
 # Get full rider list
 url_rider_list <- "https://flammerougeracing.com/?page=series10&id=1"
 rider_list_raw <- GET(url = url_rider_list)
@@ -360,6 +362,7 @@ stage_polka_jersey_results <- bind_rows(
 )
 
 save(
+  last_updated,
   rider_list,
   race_league,
   team_stage_result,
