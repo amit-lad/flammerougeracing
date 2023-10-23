@@ -6,7 +6,7 @@ output:
       version: 4
       bootswatch: materia
     orientation: rows
-    vertical_scroll: scroll
+    vertical_layout: fill
     self_contained: false
 ---
 
@@ -109,7 +109,7 @@ team_stage_summary <-
 
 Registered riders
 ======================
-Row
+Row {vertical_layout: fill}
 ------------------------
 
 
@@ -144,7 +144,7 @@ valueBox(total_time_raced, icon = "fa-stopwatch")
 
 Row
 ------------------------
-### ART riders
+### ART riders {data-height=1600}
 ```{r}
 ART_rider_table |>
   DT::datatable(style = "auto")
@@ -152,7 +152,7 @@ ART_rider_table |>
 
 Stages
 ======================
-Row
+Row {vertical_layout: scroll}
 ------------------------
 
 ### How many ART riders rode each stage?
