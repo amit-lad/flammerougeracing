@@ -165,7 +165,8 @@ ART_riders_by_stage <-
 ART_riders_by_stage |>
   ggplot(mapping = aes(x = Stage, y = num_riders)) +
   theme_linedraw() +
-  geom_col()
+  geom_col() +
+  geom_text(aes(label = num_riders), vjust = 1.5, colour = "white")
 ```
 
 ### How many stages has each ART rider ridden?
@@ -178,7 +179,8 @@ ART_riders_total_stages <-
 ART_riders_total_stages |>
   ggplot(mapping = aes(x = Stages, y = num_riders)) +
   theme_linedraw() +
-  geom_col()
+  geom_col() +
+  geom_text(aes(label = num_riders), vjust = 1.5, colour = "white")
 ```
 
 Row
@@ -189,7 +191,8 @@ Row
 ART_league_results |>
   ggplot(mapping = aes(x = Stage, y = `Team points raw`)) +
   theme_linedraw() +
-  geom_col()
+  geom_col() +
+  geom_text(aes(label = `Team points raw`), vjust = 1.5, colour = "white")
 ```
 
 ### How many league points has ART earned each stage? (Max 50)
@@ -197,7 +200,8 @@ ART_league_results |>
 ART_league_results |>
   ggplot(mapping = aes(x = Stage, y = `Team league points`)) +
   theme_linedraw() +
-  geom_col()
+  geom_col() +
+  geom_text(aes(label = `Team league points`), vjust = 1.5, colour = "white")
 ```
 
 Row
