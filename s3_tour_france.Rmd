@@ -1,14 +1,18 @@
 ---
-title: "Flamme Rouge Racing - Atom Racing Team"
+title: "Flamme Rouge"
 output: 
   flexdashboard::flex_dashboard:
     theme:
       version: 4
-      bootswatch: materia
+      bootswatch: default
+      navbar-bg: "#101010"
+    logo: ART-navbar.png
     orientation: rows
     vertical_layout: fill
     self_contained: false
 ---
+
+
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
@@ -106,26 +110,15 @@ team_stage_summary <-
 
 
 
-
-Registered riders
+Summary statistics
 ======================
-Row {vertical_layout: fill}
-------------------------
 
+> Tour series 3 - Tour France - Last updated: `last_updated` 
 
-### data as at
-```{r}
-valueBox(last_updated, icon = "fa-pencil")
-```
-
-Row
-------------------------
 ### team position
 ```{r}
 valueBox(current_position, icon = "fa-ranking-star")
 ```
-
-
 
 ### riders have raced
 ```{r}
@@ -142,18 +135,18 @@ valueBox(total_races, icon = "fa-person-biking")
 valueBox(total_time_raced, icon = "fa-stopwatch")
 ```
 
-Row
-------------------------
-### ART riders {data-height=1600}
+Team riders
+======================
+
+### ART riders
 ```{r}
 ART_rider_table |>
   DT::datatable(style = "auto")
 ```
 
-Stages
+
+Participation stats
 ======================
-Row {vertical_layout: scroll}
-------------------------
 
 ### How many ART riders rode each stage?
 ```{r}
@@ -182,6 +175,10 @@ ART_riders_total_stages |>
   geom_col() +
   geom_text(aes(label = num_riders), vjust = 1.5, colour = "white")
 ```
+
+
+Performance stats
+======================
 
 Row
 ------------------------
