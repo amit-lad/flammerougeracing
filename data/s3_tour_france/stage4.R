@@ -190,10 +190,10 @@ get_results_list <- function(category, disptypemf) {
   result_list_all$GC_pts <- result_list_all$GC_pts |> mutate(category = category, gender = disptypemf)
   result_list_all$last_stage_egap <- result_list_all$last_stage_egap |> mutate(category = category, gender = disptypemf)
   result_list_all$all_stage_performance <- result_list_all$all_stage_performance |> mutate(category = category, gender = disptypemf)
-  result_list_all$green_jersey_league <- result_list_all$green_jersey_league |> mutate(category = category, gender = disptypemf)
-  result_list_all$stage_green_jersey_results <- result_list_all$stage_green_jersey_results |> mutate(category = category, gender = disptypemf)
-  result_list_all$polka_jersey_league <- result_list_all$polka_jersey_league |> mutate(category = category, gender = disptypemf)
-  result_list_all$stage_polka_jersey_results <- result_list_all$stage_polka_jersey_results |> mutate(category = category, gender = disptypemf)
+  #result_list_all$green_jersey_league <- result_list_all$green_jersey_league |> mutate(category = category, gender = disptypemf)
+  #result_list_all$polka_jersey_league <- result_list_all$polka_jersey_league |> mutate(category = category, gender = disptypemf)
+  #result_list_all$stage_green_jersey_results <- result_list_all$stage_green_jersey_results |> mutate(category = category, gender = disptypemf)
+  #result_list_all$stage_polka_jersey_results <- result_list_all$stage_polka_jersey_results |> mutate(category = category, gender = disptypemf)
   result_list_all$overall_gc <- result_list_all$overall_gc
   
   return(result_list_all)
@@ -289,89 +289,89 @@ all_stage_performance <- bind_rows(
   results_list[[18]]$all_stage_performance,
 )
 
-green_jersey_league <- bind_rows(
-  results_list[[1]]$green_jersey_league,
-  results_list[[2]]$green_jersey_league,
-  results_list[[3]]$green_jersey_league,
-  results_list[[4]]$green_jersey_league,
-  results_list[[5]]$green_jersey_league,
-  results_list[[6]]$green_jersey_league,
-  results_list[[7]]$green_jersey_league,
-  results_list[[8]]$green_jersey_league,
-  results_list[[9]]$green_jersey_league,
-  results_list[[10]]$green_jersey_league,
-  results_list[[11]]$green_jersey_league,
-  results_list[[12]]$green_jersey_league,
-  results_list[[13]]$green_jersey_league,
-  results_list[[14]]$green_jersey_league,
-  results_list[[15]]$green_jersey_league,
-  results_list[[16]]$green_jersey_league,
-  results_list[[17]]$green_jersey_league,
-  results_list[[18]]$green_jersey_league,
-)
-
-stage_green_jersey_results <- bind_rows(
-  results_list[[1]]$stage_green_jersey_results,
-  results_list[[2]]$stage_green_jersey_results,
-  results_list[[3]]$stage_green_jersey_results,
-  results_list[[4]]$stage_green_jersey_results,
-  results_list[[5]]$stage_green_jersey_results,
-  results_list[[6]]$stage_green_jersey_results,
-  results_list[[7]]$stage_green_jersey_results,
-  results_list[[8]]$stage_green_jersey_results,
-  results_list[[9]]$stage_green_jersey_results,
-  results_list[[10]]$stage_green_jersey_results,
-  results_list[[11]]$stage_green_jersey_results,
-  results_list[[12]]$stage_green_jersey_results,
-  results_list[[13]]$stage_green_jersey_results,
-  results_list[[14]]$stage_green_jersey_results,
-  results_list[[15]]$stage_green_jersey_results,
-  results_list[[16]]$stage_green_jersey_results,
-  results_list[[17]]$stage_green_jersey_results,
-  results_list[[18]]$stage_green_jersey_results,
-)
-
-polka_jersey_league <- bind_rows(
-  results_list[[1]]$polka_jersey_league,
-  results_list[[2]]$polka_jersey_league,
-  results_list[[3]]$polka_jersey_league,
-  results_list[[4]]$polka_jersey_league,
-  results_list[[5]]$polka_jersey_league,
-  results_list[[6]]$polka_jersey_league,
-  results_list[[7]]$polka_jersey_league,
-  results_list[[8]]$polka_jersey_league,
-  results_list[[9]]$polka_jersey_league,
-  results_list[[10]]$polka_jersey_league,
-  results_list[[11]]$polka_jersey_league,
-  results_list[[12]]$polka_jersey_league,
-  results_list[[13]]$polka_jersey_league,
-  results_list[[14]]$polka_jersey_league,
-  results_list[[15]]$polka_jersey_league,
-  results_list[[16]]$polka_jersey_league,
-  results_list[[17]]$polka_jersey_league,
-  results_list[[18]]$polka_jersey_league,
-)
-
-stage_polka_jersey_results <- bind_rows(
-  results_list[[1]]$stage_polka_jersey_results,
-  results_list[[2]]$stage_polka_jersey_results,
-  results_list[[3]]$stage_polka_jersey_results,
-  results_list[[4]]$stage_polka_jersey_results,
-  results_list[[5]]$stage_polka_jersey_results,
-  results_list[[6]]$stage_polka_jersey_results,
-  results_list[[7]]$stage_polka_jersey_results,
-  results_list[[8]]$stage_polka_jersey_results,
-  results_list[[9]]$stage_polka_jersey_results,
-  results_list[[10]]$stage_polka_jersey_results,
-  results_list[[11]]$stage_polka_jersey_results,
-  results_list[[12]]$stage_polka_jersey_results,
-  results_list[[13]]$stage_polka_jersey_results,
-  results_list[[14]]$stage_polka_jersey_results,
-  results_list[[15]]$stage_polka_jersey_results,
-  results_list[[16]]$stage_polka_jersey_results,
-  results_list[[17]]$stage_polka_jersey_results,
-  results_list[[18]]$stage_polka_jersey_results,
-)
+# green_jersey_league <- bind_rows(
+#   results_list[[1]]$green_jersey_league,
+#   results_list[[2]]$green_jersey_league,
+#   results_list[[3]]$green_jersey_league,
+#   results_list[[4]]$green_jersey_league,
+#   results_list[[5]]$green_jersey_league,
+#   results_list[[6]]$green_jersey_league,
+#   results_list[[7]]$green_jersey_league,
+#   results_list[[8]]$green_jersey_league,
+#   results_list[[9]]$green_jersey_league,
+#   results_list[[10]]$green_jersey_league,
+#   results_list[[11]]$green_jersey_league,
+#   results_list[[12]]$green_jersey_league,
+#   results_list[[13]]$green_jersey_league,
+#   results_list[[14]]$green_jersey_league,
+#   results_list[[15]]$green_jersey_league,
+#   results_list[[16]]$green_jersey_league,
+#   results_list[[17]]$green_jersey_league,
+#   results_list[[18]]$green_jersey_league,
+# )
+# 
+# stage_green_jersey_results <- bind_rows(
+#   results_list[[1]]$stage_green_jersey_results,
+#   results_list[[2]]$stage_green_jersey_results,
+#   results_list[[3]]$stage_green_jersey_results,
+#   results_list[[4]]$stage_green_jersey_results,
+#   results_list[[5]]$stage_green_jersey_results,
+#   results_list[[6]]$stage_green_jersey_results,
+#   results_list[[7]]$stage_green_jersey_results,
+#   results_list[[8]]$stage_green_jersey_results,
+#   results_list[[9]]$stage_green_jersey_results,
+#   results_list[[10]]$stage_green_jersey_results,
+#   results_list[[11]]$stage_green_jersey_results,
+#   results_list[[12]]$stage_green_jersey_results,
+#   results_list[[13]]$stage_green_jersey_results,
+#   results_list[[14]]$stage_green_jersey_results,
+#   results_list[[15]]$stage_green_jersey_results,
+#   results_list[[16]]$stage_green_jersey_results,
+#   results_list[[17]]$stage_green_jersey_results,
+#   results_list[[18]]$stage_green_jersey_results,
+# )
+# 
+# polka_jersey_league <- bind_rows(
+#   results_list[[1]]$polka_jersey_league,
+#   results_list[[2]]$polka_jersey_league,
+#   results_list[[3]]$polka_jersey_league,
+#   results_list[[4]]$polka_jersey_league,
+#   results_list[[5]]$polka_jersey_league,
+#   results_list[[6]]$polka_jersey_league,
+#   results_list[[7]]$polka_jersey_league,
+#   results_list[[8]]$polka_jersey_league,
+#   results_list[[9]]$polka_jersey_league,
+#   results_list[[10]]$polka_jersey_league,
+#   results_list[[11]]$polka_jersey_league,
+#   results_list[[12]]$polka_jersey_league,
+#   results_list[[13]]$polka_jersey_league,
+#   results_list[[14]]$polka_jersey_league,
+#   results_list[[15]]$polka_jersey_league,
+#   results_list[[16]]$polka_jersey_league,
+#   results_list[[17]]$polka_jersey_league,
+#   results_list[[18]]$polka_jersey_league,
+# )
+# 
+# stage_polka_jersey_results <- bind_rows(
+#   results_list[[1]]$stage_polka_jersey_results,
+#   results_list[[2]]$stage_polka_jersey_results,
+#   results_list[[3]]$stage_polka_jersey_results,
+#   results_list[[4]]$stage_polka_jersey_results,
+#   results_list[[5]]$stage_polka_jersey_results,
+#   results_list[[6]]$stage_polka_jersey_results,
+#   results_list[[7]]$stage_polka_jersey_results,
+#   results_list[[8]]$stage_polka_jersey_results,
+#   results_list[[9]]$stage_polka_jersey_results,
+#   results_list[[10]]$stage_polka_jersey_results,
+#   results_list[[11]]$stage_polka_jersey_results,
+#   results_list[[12]]$stage_polka_jersey_results,
+#   results_list[[13]]$stage_polka_jersey_results,
+#   results_list[[14]]$stage_polka_jersey_results,
+#   results_list[[15]]$stage_polka_jersey_results,
+#   results_list[[16]]$stage_polka_jersey_results,
+#   results_list[[17]]$stage_polka_jersey_results,
+#   results_list[[18]]$stage_polka_jersey_results,
+# )
 
 overall_gc <- results_list[[1]]$overall_gc
 
@@ -384,10 +384,10 @@ save(
   GC_pts,
   last_stage_egap,
   all_stage_performance,
-  green_jersey_league,
-  stage_green_jersey_results,
-  polka_jersey_league,
-  stage_polka_jersey_results,
+  # green_jersey_league,
+  # stage_green_jersey_results,
+  # polka_jersey_league,
+  # stage_polka_jersey_results,
   overall_gc,
   file = here("data", "s3_tour_france", "data.RData")
 )

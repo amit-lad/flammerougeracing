@@ -12,7 +12,15 @@ output:
     self_contained: false
 ---
 
-
+```{css}
+.datatables.html-widget.html-widget-static-bound { 
+  height: auto !important;
+  width: 90vw !important;
+}
+.dataTables_scrollBody {
+  height: unset !important;
+}
+```
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
@@ -157,7 +165,7 @@ ART_rider_table |>
         "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
         "}"),
       pageLength = -1,
-      dom = 't',
+      dom = 'ft',
       order = list(1, 'asc')
     ))
 ```
