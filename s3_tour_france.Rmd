@@ -6,7 +6,7 @@ output:
       version: 4
       bootswatch: default
       navbar-bg: "#101010"
-    logo: ART-navbar.png
+    logo: www/ART-navbar.png
     orientation: rows
     vertical_layout: fill
     self_contained: false
