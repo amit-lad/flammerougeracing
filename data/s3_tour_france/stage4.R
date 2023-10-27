@@ -38,7 +38,7 @@ names(rider_list) <- c(
 url_results_list <- "https://flammerougeracing.com/?page=series1&id=1"
 
 rider_category <- tibble(category = c("CAP","DRA", "CRP", "GHT", "HAB", "BON", "CAY", "JLP", "PEP"))
-racenoref <- 4
+racenoref <- 3
 disptypemf <- tibble(gender = c("M","F")) #M for female, and not used for male
 
 post_query <-
@@ -72,7 +72,8 @@ get_results_list <- function(category, disptypemf) {
     "green_jersey_league",
     "stage_green_jersey_results",
     "polka_jersey_league",
-    "stage_polka_jersey_results"
+    "stage_polka_jersey_results",
+    "overall_gc"
   )
   
   names(result_list_all$race_league) <- c(
@@ -173,6 +174,16 @@ get_results_list <- function(category, disptypemf) {
     "KOM Points"
   )
   
+  names(result_list_all$overall_gc) <- c(
+    "GC",
+    "Position",
+    "Rider",
+    "FRHC",
+    "Stages",
+    "Time",
+    "Gap"
+  )
+  
   result_list_all$race_league <- result_list_all$race_league
   result_list_all$team_stage_result <- result_list_all$team_stage_result
   result_list_all$GC_jersey <- result_list_all$GC_jersey |> mutate(category = category, gender = disptypemf)
@@ -183,6 +194,7 @@ get_results_list <- function(category, disptypemf) {
   result_list_all$stage_green_jersey_results <- result_list_all$stage_green_jersey_results |> mutate(category = category, gender = disptypemf)
   result_list_all$polka_jersey_league <- result_list_all$polka_jersey_league |> mutate(category = category, gender = disptypemf)
   result_list_all$stage_polka_jersey_results <- result_list_all$stage_polka_jersey_results |> mutate(category = category, gender = disptypemf)
+  result_list_all$overall_gc <- result_list_all$overall_gc
   
   return(result_list_all)
   
@@ -361,6 +373,8 @@ stage_polka_jersey_results <- bind_rows(
   results_list[[18]]$stage_polka_jersey_results,
 )
 
+overall_gc <- results_list[[1]]$overall_gc
+
 save(
   last_updated,
   rider_list,
@@ -374,5 +388,6 @@ save(
   stage_green_jersey_results,
   polka_jersey_league,
   stage_polka_jersey_results,
+  overall_gc,
   file = here("data", "s3_tour_france", "data.RData")
 )

@@ -72,8 +72,15 @@ ART_rider_table <-
   GC_jersey |>
   mutate( art_rider = str_detect(Rider, "\\[ART\\]$")) |>
   filter(art_rider == TRUE) |>
-  mutate(Time = parse_time(Time, "%H:%M:%S")) |>
-  select(Rider, category, gender, Stages, Time)
+  left_join(overall_gc, by = c("Rider", "Stages", "Time")) |>
+  mutate(
+    `Pos (FHRC)` = Position.x,
+    `Pos (overall)` = Position.y,
+    Time = parse_time(Time, "%H:%M:%S"),
+    `Gap (FHRC)` = Gap.x,
+    `Gap (overall)` = Gap.y,
+    ) |>
+  select(`Pos (FHRC)`, `Pos (overall)`, Rider, category, gender, Stages, Time, `Gap (FHRC)`, `Gap (overall)`)
 
 total_time_raced <- sum(ART_rider_table$Time) |>  as.period(unit = "%H:%M:%S")
 
@@ -141,7 +148,18 @@ Team riders
 ### ART riders
 ```{r}
 ART_rider_table |>
-  DT::datatable(style = "auto")
+  DT::datatable(
+    style = "auto",
+    rownames = FALSE,
+    options = list(
+      initComplete = JS(
+        "function(settings, json) {",
+        "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+        "}"),
+      pageLength = -1,
+      dom = 't',
+      order = list(1, 'asc')
+    ))
 ```
 
 
