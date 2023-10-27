@@ -29,18 +29,28 @@ library(here)
 library(knitr)
 library(lubridate)
 library(DT)
+library(plotly)
 
 load(here("data", "s3_tour_france", "data.RData"))
 
 ```
 
 ```{r}
+
+stage_profile <- tibble(
+  Stage = 1:8,
+  Distance = c(56,62,42,43,25,36,93,43),
+  Climbing = c(572,483,200,310,472,1603,2209,180),
+  Stage_name = c("R-1", "R-2", "R-3", "R-4", "R-5", "R-6", "R-7", "R-8")
+)
+
+
 riders_ART <- rider_list |> filter(Club == "ART")
 
 total_racing_riders <- riders_ART |> filter(Tour_races > 0) |> nrow()
 total_races <- sum(riders_ART$Tour_races)
 
-current_position <- race_league |> filter(Team == "ART") |> select(Position) |> sum()
+current_position <- race_league |> filter(Team == "ART Racing") |> select(Position) |> sum()
 
 total_riders_by_category <- rider_list |>
   filter(Tour_races > 0) |>
@@ -95,10 +105,12 @@ total_time_raced <- sum(ART_rider_table$Time) |>  as.period(unit = "%H:%M:%S")
 ART_riders_stage_breakdown <-
   all_stage_performance |>
   mutate( art_rider = str_detect(Rider, "\\[ART\\]$")) |>
-  filter(art_rider == TRUE)
+  filter(art_rider == TRUE) |>
+  left_join(stage_profile, by = c("Stage"))
 
 ART_league_results <-
   team_stage_result |>
+  left_join(stage_profile, by = c("Stage" = "Stage_name")) |>
   filter(is.na(`Team league points`) == FALSE) |>
   mutate(art_rider = str_detect(Rider, "^ART")) |>
   filter(art_rider == TRUE)
@@ -130,25 +142,40 @@ Summary statistics
 
 > Tour series 3 - Tour France - Last updated: `last_updated` 
 
+Row
+------------------------
 ### team position
 ```{r}
-valueBox(current_position, icon = "fa-ranking-star")
+valueBox(current_position, icon = "fa-ranking-star", color = "#101010")
 ```
 
 ### riders have raced
 ```{r}
-valueBox(total_racing_riders, icon = "fa-people-group")
+valueBox(total_racing_riders, icon = "fa-people-group", color = "#101010")
 ```
 
 ### stages raced
 ```{r}
-valueBox(total_races, icon = "fa-person-biking")
+valueBox(total_races, icon = "fa-person-biking", color = "#101010")
 ```
 
+Row
+------------------------
 ### time spent racing
 ```{r}
-valueBox(total_time_raced, icon = "fa-stopwatch")
+valueBox(total_time_raced, icon = "fa-stopwatch", color = "#101010")
 ```
+
+### km ridden
+```{r}
+valueBox(format(sum(ART_riders_stage_breakdown$Distance), big.mark = ","), icon = "fa-road", color = "#101010")
+```
+
+### m climbed
+```{r}
+valueBox(format(sum(ART_riders_stage_breakdown$Climbing), big.mark=",", scientific = FALSE), icon = "fa-mountain", color = "#101010")
+```
+
 
 Team riders
 ======================
@@ -182,10 +209,11 @@ ART_riders_by_stage <-
   summarise(num_riders = n(), .groups = "drop")
 
 ART_riders_by_stage |>
-  ggplot(mapping = aes(x = Stage, y = num_riders)) +
+  ggplot(mapping = aes(x = Stage, y = num_riders, fill = Stage)) +
   theme_linedraw() +
-  geom_col() +
-  geom_text(aes(label = num_riders), vjust = 1.5, colour = "white")
+  geom_col(show.legend = FALSE) +
+  geom_text(aes(label = num_riders), vjust = 1.5, colour = "white") +
+  scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8))
 ```
 
 ### How many stages has each ART rider ridden?
@@ -196,39 +224,26 @@ ART_riders_total_stages <-
   summarise(num_riders = n(), .groups = "drop")
   
 ART_riders_total_stages |>
-  ggplot(mapping = aes(x = Stages, y = num_riders)) +
+  ggplot(mapping = aes(x = (Stages), y = num_riders, fill = (Stages))) +
   theme_linedraw() +
-  geom_col() +
-  geom_text(aes(label = num_riders), vjust = 1.5, colour = "white")
+  geom_col(show.legend = FALSE) +
+  geom_text(aes(label = num_riders), vjust = 1.5, colour = "white") +
+  scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8))
+  
 ```
 
 
-Performance stats
+Raw points
 ======================
-
-Row
-------------------------
 
 ### How many raw points has ART earned each stage?
 ```{r}
 ART_league_results |>
-  ggplot(mapping = aes(x = Stage, y = `Team points raw`)) +
+  ggplot(mapping = aes(x = Stage, y = `Team points raw`, fill = Stage.y)) +
   theme_linedraw() +
-  geom_col() +
+  geom_col(show.legend = FALSE) +
   geom_text(aes(label = `Team points raw`), vjust = 1.5, colour = "white")
 ```
-
-### How many league points has ART earned each stage? (Max 50)
-```{r}
-ART_league_results |>
-  ggplot(mapping = aes(x = Stage, y = `Team league points`)) +
-  theme_linedraw() +
-  geom_col() +
-  geom_text(aes(label = `Team league points`), vjust = 1.5, colour = "white")
-```
-
-Row
-------------------------
 
 ### ART cumulative raw points vs other teams
 ```{r}
@@ -239,6 +254,20 @@ team_stage_summary |>
   geom_line(mapping = aes(x = Stage, y = art_cumulative_points_raw, group = team))
 
 ```
+
+
+League points
+======================
+
+### How many league points has ART earned each stage? (Max 50)
+```{r}
+ART_league_results |>
+  ggplot(mapping = aes(x = Stage, y = `Team league points`, fill = Stage.y)) +
+  theme_linedraw() +
+  geom_col(show.legend = FALSE) +
+  geom_text(aes(label = `Team league points`), vjust = 1.5, colour = "white")
+```
+
 
 ### ART cumulative league points vs other teams
 ```{r}
