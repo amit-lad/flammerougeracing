@@ -20,6 +20,15 @@ output:
 .dataTables_scrollBody {
   height: unset !important;
 }
+
+.value-box .icon i {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 80px;
+  color: rgba(255, 0, 0, 0.75);
+}
+
 ```
 
 ```{r setup, include=FALSE}
