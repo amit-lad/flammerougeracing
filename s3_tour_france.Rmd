@@ -149,7 +149,7 @@ team_stage_summary <-
 Summary statistics
 ======================
 
-> Tour series 3 - Tour France - Last updated: `last_updated` 
+> Tour series 3 - Tour France - Last updated: `r last_updated` 
 
 Row
 ------------------------
@@ -172,7 +172,9 @@ Row
 ------------------------
 ### time spent racing
 ```{r}
-valueBox(total_time_raced, icon = "fa-stopwatch", color = "#101010")
+valueBox(
+  paste0(total_time_raced@day, "d ",total_time_raced@hour, "h"), 
+  icon = "fa-stopwatch", color = "#101010")
 ```
 
 ### km ridden
@@ -182,7 +184,7 @@ valueBox(format(sum(ART_riders_stage_breakdown$Distance), big.mark = ","), icon 
 
 ### m climbed
 ```{r}
-valueBox(format(sum(ART_riders_stage_breakdown$Climbing), big.mark=",", scientific = FALSE), icon = "fa-mountain", color = "#101010")
+valueBox(format(sum(ART_riders_stage_breakdown$Climbing), big.mark=",", scientific = FALSE), icon = "fa-mountain-sun", color = "#101010")
 ```
 
 
