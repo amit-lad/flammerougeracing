@@ -163,7 +163,7 @@ team_stage_summary <-
 Summary statistics
 ======================
 
-> Tour series 3 - Tour France - Last updated: `r last_updated` 
+> Tour series 3 - Tour Britannia - Last updated: `r last_updated` 
 
 Row
 ------------------------
