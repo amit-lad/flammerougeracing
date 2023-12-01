@@ -50,13 +50,13 @@ disptypemf <- tibble(gender = c("M","F")) #M for female, and not used for male
 post_query <-
   rider_category |>
   cross_join(disptypemf) |>
-  mutate(leagueRef = paste("FRF", racenoref, category, sep = "."), racenoref = racenoref)
+  mutate(leagueRef = paste("FRB", racenoref, category, sep = "."), racenoref = racenoref)
 
 
 get_results_list <- function(category, disptypemf) {
-  #category <- "BON"
-  #disptypemf <- "F"
-  leagueRef <- paste("FRF", racenoref, category, sep = ".")
+  #category <- "JLP"
+  #disptypemf <- "M"
+  leagueRef <- paste("FRB", racenoref, category, sep = ".")
   query_list <- list("leagueRef" = leagueRef, "racenoref" = racenoref) 
   if (disptypemf == "F") {query_list <- append(query_list, list("disptypemf" = "M"))}
   
@@ -123,9 +123,10 @@ get_results_list <- function(category, disptypemf) {
     "FRHC",
     "Position",
     "Rider",
-    "Total time",
+    "FRHC-Gender",
+    "Time",
     "Stages",
-    "Total eGAP time",
+    "eGAP time",
     "Gap"
   )
   
@@ -134,7 +135,7 @@ get_results_list <- function(category, disptypemf) {
     "Position",
     "Rider",
     "Stages",
-    "Total time",
+    "Time",
     "Gap"
   )  
 

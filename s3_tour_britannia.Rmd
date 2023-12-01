@@ -1,5 +1,5 @@
 ---
-title: "Flamme Rouge"
+title: "S3 Tour Brittania"
 output: 
   flexdashboard::flex_dashboard:
     theme:
@@ -41,7 +41,7 @@ library(DT)
 library(plotly)
 library(bslib)
 
-load(here("data", "s3_tour_france", "data.RData"))
+load(here("data", "s3_tour_britannia", "data.RData"))
 
 ```
 
@@ -49,24 +49,37 @@ load(here("data", "s3_tour_france", "data.RData"))
 
 stage_profile <- tibble(
   Stage = 1:8,
-  Distance = c(56,62,42,43,25,36,93,43),
-  Climbing = c(572,483,200,310,472,1603,2209,180),
+  Distance = c(48,67,27,48,33,41,54,55),
+  Climbing = c(645,750,512,560,612,512,1250,999),
   Stage_name = c("R-1", "R-2", "R-3", "R-4", "R-5", "R-6", "R-7", "R-8")
 )
 
 
 riders_ART <- rider_list |> filter(Club == "ART")
 
+max_races <- max(rider_list$Tour_races)
+
 total_racing_riders <- riders_ART |> filter(Tour_races > 0) |> nrow()
 total_races <- sum(riders_ART$Tour_races)
+total_full_tour_riders <- riders_ART |> filter(Tour_races == max_races) |> nrow()
 
-current_position <- race_league |> filter(Team == "ART Racing") |> select(Position) |> sum()
+
+current_position_mixed <- results_list$race_league_mixed |> 
+  filter(Team == "ART Racing") |> 
+  select(Position) |> sum()
+current_position_men <- results_list$race_league_gender |> 
+  filter(Team == "ART Racing", gender == "M") |> 
+  select(Position) |> sum()
+current_position_women <- results_list$race_league_gender |> 
+  filter(Team == "ART Racing", gender == "F") |> 
+  select(Position) |> sum()
+
 
 total_riders_by_category <- rider_list |>
   filter(Tour_races > 0) |>
-  group_by(FRHC, Gender) |>
+  group_by(FRHC_tour, Gender) |>
   summarise(count = n(), .by = NULL, .groups = "drop") |>
-  pivot_wider(names_from = FRHC, values_from = count, values_fill = 0) |>
+  pivot_wider(names_from = FRHC_tour, values_from = count, values_fill = 0) |>
   mutate(Team = "ALL teams") |>
   select(Team, Gender, CAP, DRA, CRP, GHT, HAB, BON, CAY, JLP, PEP) |>
   arrange(desc(Gender)) |>
@@ -75,20 +88,20 @@ total_riders_by_category <- rider_list |>
 
 riders_by_category <- riders_ART |>
   filter(Tour_races > 0) |>
-  group_by(FRHC, Gender) |>
+  group_by(FRHC_tour, Gender) |>
   summarise(count = n(), .by = NULL, .groups = "drop") |>
-  add_row(FRHC = "CAP", Gender = "M", count = 0) |>
-  add_row(FRHC = "DRA", Gender = "M", count = 0) |>
-  add_row(FRHC = "CRP", Gender = "M", count = 0) |>
-  add_row(FRHC = "GHT", Gender = "M", count = 0) |>
-  add_row(FRHC = "HAB", Gender = "M", count = 0) |>
-  add_row(FRHC = "BON", Gender = "M", count = 0) |>
-  add_row(FRHC = "CAY", Gender = "M", count = 0) |>
-  add_row(FRHC = "JLP", Gender = "M", count = 0) |>
-  add_row(FRHC = "PEP", Gender = "M", count = 0) |>
-  group_by(FRHC, Gender) |>
-  summarise(count = n(), .by = NULL, .groups = "drop") |>
-  pivot_wider(names_from = FRHC, values_from = count, values_fill = 0) |>
+  add_row(FRHC_tour = "CAP", Gender = "M", count = 0) |>
+  add_row(FRHC_tour = "DRA", Gender = "M", count = 0) |>
+  add_row(FRHC_tour = "CRP", Gender = "M", count = 0) |>
+  add_row(FRHC_tour = "GHT", Gender = "M", count = 0) |>
+  add_row(FRHC_tour = "HAB", Gender = "M", count = 0) |>
+  add_row(FRHC_tour = "BON", Gender = "M", count = 0) |>
+  add_row(FRHC_tour = "CAY", Gender = "M", count = 0) |>
+  add_row(FRHC_tour = "JLP", Gender = "M", count = 0) |>
+  add_row(FRHC_tour = "PEP", Gender = "M", count = 0) |>
+  group_by(FRHC_tour, Gender) |>
+  summarise(count = sum(count), .by = NULL, .groups = "drop") |>
+  pivot_wider(names_from = FRHC_tour, values_from = count, values_fill = 0) |>
   mutate(Team = "ART only") |>
   select(Team, Gender, CAP, DRA, CRP, GHT, HAB, BON, CAY, JLP, PEP) |>
   arrange(desc(Gender))
@@ -97,10 +110,10 @@ riders_comparison_summary <-
   bind_rows(riders_by_category, total_riders_by_category)
 
 ART_rider_table <-
-  GC_jersey |>
+  results_list$GC_time_least |>
   mutate( art_rider = str_detect(Rider, "\\[ART\\]$")) |>
   filter(art_rider == TRUE) |>
-  left_join(overall_gc, by = c("Rider", "Stages", "Time")) |>
+  left_join(results_list$GC_overall, by = c("Rider", "Stages", "Time")) |>
   mutate(
     `Pos (FHRC)` = Position.x,
     `Pos (overall)` = Position.y,
@@ -113,27 +126,27 @@ ART_rider_table <-
 total_time_raced <- sum(ART_rider_table$Time) |>  as.period(unit = "%H:%M:%S")
 
 ART_riders_stage_breakdown <-
-  all_stage_performance |>
+  results_list$all_stage_performance |>
   mutate( art_rider = str_detect(Rider, "\\[ART\\]$")) |>
   filter(art_rider == TRUE) |>
   left_join(stage_profile, by = c("Stage"))
 
 ART_league_results <-
-  team_stage_result |>
+  results_list$team_stage_result |>
   left_join(stage_profile, by = c("Stage" = "Stage_name")) |>
   filter(is.na(`Team league points`) == FALSE) |>
   mutate(art_rider = str_detect(Rider, "^ART")) |>
   filter(art_rider == TRUE)
 
 team_stage_summary <-
-  team_stage_result |>
+  results_list$team_stage_result |>
   filter(is.na(`Team league points`) == FALSE) |>
   mutate(
     team = str_extract(Rider, "^[:alpha:]+"),
     stage_num = as.integer(str_extract(Stage, "[:digit:]+"))
   ) |>
   mutate(art_team = str_detect(Rider, "^ART")) |>
-  group_by(team)|>
+  group_by(team) |>
   mutate(
     cumulative_points_raw = cumsum(`Team points raw`),
     cumulative_league_points = cumsum(`Team league points`),
@@ -154,11 +167,23 @@ Summary statistics
 
 Row
 ------------------------
-### team position
+### team position (mixed)
 ```{r}
-valueBox(current_position, icon = "fa-ranking-star", color = "#101010")
+valueBox(current_position_mixed, icon = "fa-ranking-star", color = "#101010")
 ```
 
+### team position (men)
+```{r}
+valueBox(current_position_men, icon = "fa-ranking-star", color = "#101010")
+```
+
+### team position (women)
+```{r}
+valueBox(current_position_women, icon = "fa-ranking-star", color = "#101010")
+```
+
+Row
+------------------------
 ### riders have raced
 ```{r}
 valueBox(total_racing_riders, icon = "fa-people-group", color = "#101010")
@@ -167,6 +192,11 @@ valueBox(total_racing_riders, icon = "fa-people-group", color = "#101010")
 ### stages raced
 ```{r}
 valueBox(total_races, icon = "fa-person-biking", color = "#101010")
+```
+
+### riders have raced all stages
+```{r}
+valueBox(total_full_tour_riders, icon = "fa-trophy", color = "#101010")
 ```
 
 Row
@@ -185,7 +215,9 @@ valueBox(format(sum(ART_riders_stage_breakdown$Distance), big.mark = ","), icon 
 
 ### m climbed
 ```{r}
-valueBox(format(sum(ART_riders_stage_breakdown$Climbing), big.mark=",", scientific = FALSE), icon = "fa-mountain-sun", color = "#101010")
+valueBox(
+  format(sum(ART_riders_stage_breakdown$Climbing), big.mark = ",", scientific = FALSE), 
+  icon = "fa-mountain-sun", color = "#101010")
 ```
 
 
