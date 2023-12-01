@@ -1,5 +1,5 @@
 ---
-title: "S3 Tour Brittania"
+title: "S3 Tour Britannia"
 output: 
   flexdashboard::flex_dashboard:
     theme:
