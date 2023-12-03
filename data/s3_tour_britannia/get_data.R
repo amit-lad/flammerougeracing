@@ -180,6 +180,7 @@ get_results_list <- function(category, disptypemf) {
     "Position",
     "Rider",
     "Stages",
+    "Penalty",
     "Sprint points"
   )
 
@@ -264,5 +265,5 @@ save(
   last_updated,
   rider_list,
   results_list,
-  file = here("data", "s3_tour_brittania", "data.RData")
+  file = here("data", "s3_tour_britannia", "data.RData")
 )
