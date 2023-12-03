@@ -154,6 +154,52 @@ team_stage_summary <-
     art_cumulative_league_points = case_when(art_team == TRUE ~ cumulative_league_points, TRUE ~ NA)
   )
   
+
+positions_yellow_jersey_eGap <- tibble(
+  Rider = results_list$GC_time_egap$Rider,
+  `Yellow Jersey (eGap)` = results_list$GC_time_egap$Position
+)
+
+positions_yellow_jersey_time <- tibble(
+  Rider = results_list$GC_time_least$Rider,
+  `Yellow Jersey (time)` = results_list$GC_time_least$Position
+)
+
+positions_technicolour_jersey <- tibble(
+  Rider = results_list$all_rounder_points$Rider,
+  `Technicolour Jersey` = results_list$all_rounder_points$Position
+)
+
+positions_green_jersey <- tibble(
+  Rider = results_list$green_jersey_league$Rider,
+  `Green Jersey` = results_list$green_jersey_league$Position
+)
+
+positions_polka_jersey <- tibble(
+  Rider = results_list$polka_jersey_league$Rider,
+  `Polka Dot Jersey` = results_list$polka_jersey_league$Position
+)
+
+art_rider_individual_performance <-
+  results_list$GC_time_least |>
+  mutate( art_rider = str_detect(Rider, "\\[ART\\]$")) |>
+  filter(art_rider == TRUE) |>
+  select(Rider, category, gender) |>
+  left_join(positions_yellow_jersey_eGap, by = join_by(Rider)) |>
+  left_join(positions_yellow_jersey_time, by = join_by(Rider)) |>
+  left_join(positions_technicolour_jersey, by = join_by(Rider)) |>
+  left_join(positions_green_jersey, by = join_by(Rider)) |>
+  left_join(positions_polka_jersey, by = join_by(Rider)) |>
+  mutate(
+    best_position = pmin(
+      `Yellow Jersey (eGap)`,
+      `Yellow Jersey (time)`,
+      `Technicolour Jersey`,
+      `Green Jersey`,
+      `Polka Dot Jersey`)
+  ) |>
+  filter(best_position <= 10) |>
+  select(-best_position)
   
 
 ```
@@ -323,3 +369,34 @@ team_stage_summary |>
 ```
 
 
+Individual top 10s
+======================
+
+### ART riders with top 10 positions
+```{r}
+
+ranking_bands <- c(1,2,3,10)
+ranking_bands_colous <- c('gold', '#c0c0c0', 'orange', '#90EE90', 'white')
+
+art_rider_individual_performance |>
+  DT::datatable(
+    style = "auto",
+    rownames = FALSE,
+    options = list(
+      initComplete = JS(
+        "function(settings, json) {",
+        "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+        "}"),
+      class = list(stripe = FALSE),
+      pageLength = -1,
+      dom = 'ft',
+      order = list(1, 'asc')
+    )) |>
+  formatStyle('Yellow Jersey (eGap)', backgroundColor = styleInterval(ranking_bands, ranking_bands_colous)) |>
+  formatStyle('Yellow Jersey (time)', backgroundColor = styleInterval(ranking_bands, ranking_bands_colous)) |>
+  formatStyle('Technicolour Jersey', backgroundColor = styleInterval(ranking_bands, ranking_bands_colous)) |>
+  formatStyle('Green Jersey', backgroundColor = styleInterval(ranking_bands, ranking_bands_colous)) |>
+  formatStyle('Polka Dot Jersey', backgroundColor = styleInterval(ranking_bands, ranking_bands_colous))
+  
+  
+```
