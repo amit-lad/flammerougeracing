@@ -380,7 +380,7 @@ ranking_bands_colous <- c('gold', '#c0c0c0', 'orange', '#90EE90', 'white')
 
 art_rider_individual_performance |>
   DT::datatable(
-    style = "auto",
+    #style = "auto",
     rownames = FALSE,
     options = list(
       initComplete = JS(
