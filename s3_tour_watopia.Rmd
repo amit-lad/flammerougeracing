@@ -1,0 +1,403 @@
+---
+title: "S3 Tour Watopia"
+output: 
+  flexdashboard::flex_dashboard:
+    theme:
+      version: 4
+      bootswatch: default
+      navbar-bg: "#101010"
+    logo: /www/ART-navbar.png
+    orientation: rows
+    vertical_layout: fill
+    self_contained: false
+---
+
+```{css}
+.datatables.html-widget.html-widget-static-bound { 
+  height: auto !important;
+  width: 90vw !important;
+}
+.dataTables_scrollBody {
+  height: unset !important;
+}
+
+.value-box .icon i {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 80px;
+  color: rgba(255, 0, 0, 0.75);
+}
+
+```
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(here)
+library(knitr)
+library(lubridate)
+library(DT)
+library(plotly)
+library(bslib)
+
+load(here("data", "s3_tour_watopia", "data.RData"))
+
+```
+
+```{r}
+
+stage_profile <- tibble(
+  Stage = 1:8,
+  Distance = c(41,51,40,37,44,62,38,40),
+  Climbing = c(180,268,328,650,1152,850,312,776),
+  Stage_name = c("R-1", "R-2", "R-3", "R-4", "R-5", "R-6", "R-7", "R-8")
+)
+
+
+riders_ART <- rider_list |> filter(Club == "ART")
+
+max_races <- max(rider_list$Tour_races)
+
+total_racing_riders <- riders_ART |> filter(Tour_races > 0) |> nrow()
+total_races <- sum(riders_ART$Tour_races)
+total_full_tour_riders <- riders_ART |> filter(Tour_races == max_races) |> nrow()
+
+
+current_position_mixed <- results_list$race_league_mixed |> 
+  filter(Team == "ART Racing") |> 
+  select(Position) |> sum()
+current_position_men <- results_list$race_league_gender |> 
+  filter(Team == "ART Racing", gender == "M") |> 
+  select(Position) |> sum()
+current_position_women <- results_list$race_league_gender |> 
+  filter(Team == "ART Racing", gender == "F") |> 
+  select(Position) |> sum()
+
+
+total_riders_by_category <- rider_list |>
+  filter(Tour_races > 0) |>
+  group_by(FRHC_tour, Gender) |>
+  summarise(count = n(), .by = NULL, .groups = "drop") |>
+  pivot_wider(names_from = FRHC_tour, values_from = count, values_fill = 0) |>
+  mutate(Team = "ALL teams") |>
+  select(Team, Gender, CAP, DRA, CRP, GHT, HAB, BON, CAY, JLP, PEP, BEL) |>
+  arrange(desc(Gender)) |>
+  filter(Gender %in% c("M", "F"))
+
+
+riders_by_category <- riders_ART |>
+  filter(Tour_races > 0) |>
+  group_by(FRHC_tour, Gender) |>
+  summarise(count = n(), .by = NULL, .groups = "drop") |>
+  add_row(FRHC_tour = "CAP", Gender = "M", count = 0) |>
+  add_row(FRHC_tour = "DRA", Gender = "M", count = 0) |>
+  add_row(FRHC_tour = "CRP", Gender = "M", count = 0) |>
+  add_row(FRHC_tour = "GHT", Gender = "M", count = 0) |>
+  add_row(FRHC_tour = "HAB", Gender = "M", count = 0) |>
+  add_row(FRHC_tour = "BON", Gender = "M", count = 0) |>
+  add_row(FRHC_tour = "CAY", Gender = "M", count = 0) |>
+  add_row(FRHC_tour = "JLP", Gender = "M", count = 0) |>
+  add_row(FRHC_tour = "PEP", Gender = "M", count = 0) |>
+  add_row(FRHC_tour = "BEL", Gender = "M", count = 0) |>
+  group_by(FRHC_tour, Gender) |>
+  summarise(count = sum(count), .by = NULL, .groups = "drop") |>
+  pivot_wider(names_from = FRHC_tour, values_from = count, values_fill = 0) |>
+  mutate(Team = "ART only") |>
+  select(Team, Gender, CAP, DRA, CRP, GHT, HAB, BON, CAY, JLP, PEP, BEL) |>
+  arrange(desc(Gender))
+
+riders_comparison_summary <-
+  bind_rows(riders_by_category, total_riders_by_category)
+
+ART_rider_table <-
+  results_list$GC_time_least |>
+  mutate( art_rider = str_detect(Rider, "\\[ART\\]$")) |>
+  filter(art_rider == TRUE) |>
+  left_join(results_list$GC_overall, by = c("Rider", "Stages", "Time")) |>
+  mutate(
+    `Pos (FHRC)` = Position.x,
+    `Pos (overall)` = Position.y,
+    Time = parse_time(Time, "%H:%M:%S"),
+    `Gap (FHRC)` = Gap.x,
+    `Gap (overall)` = Gap.y,
+    ) |>
+  select(`Pos (FHRC)`, `Pos (overall)`, Rider, category, gender, Stages, Time, `Gap (FHRC)`, `Gap (overall)`)
+
+total_time_raced <- sum(ART_rider_table$Time) |>  as.period(unit = "%H:%M:%S")
+
+ART_riders_stage_breakdown <-
+  results_list$all_stage_performance |>
+  mutate( art_rider = str_detect(Rider, "\\[ART\\]$")) |>
+  filter(art_rider == TRUE) |>
+  left_join(stage_profile, by = c("Stage"))
+
+ART_league_results <-
+  results_list$team_stage_result |>
+  left_join(stage_profile, by = c("Stage" = "Stage_name")) |>
+  filter(is.na(`Team league points`) == FALSE) |>
+  mutate(art_rider = str_detect(Rider, "^ART")) |>
+  filter(art_rider == TRUE)
+
+team_stage_summary <-
+  results_list$team_stage_result |>
+  filter(is.na(`Team league points`) == FALSE) |>
+  mutate(
+    team = str_extract(Rider, "^[:alpha:]+"),
+    stage_num = as.integer(str_extract(Stage, "[:digit:]+"))
+  ) |>
+  mutate(art_team = str_detect(Rider, "^ART")) |>
+  group_by(team) |>
+  mutate(
+    cumulative_points_raw = cumsum(`Team points raw`),
+    cumulative_league_points = cumsum(`Team league points`),
+    art_cumulative_points_raw = case_when(art_team == TRUE ~ cumulative_points_raw, TRUE ~ NA),
+    art_cumulative_league_points = case_when(art_team == TRUE ~ cumulative_league_points, TRUE ~ NA)
+  )
+  
+
+positions_yellow_jersey_eGap <- tibble(
+  Rider = results_list$GC_time_egap$Rider,
+  `Yellow Jersey (eGap)` = results_list$GC_time_egap$Position
+)
+
+positions_yellow_jersey_time <- tibble(
+  Rider = results_list$GC_time_least$Rider,
+  `Yellow Jersey (time)` = results_list$GC_time_least$Position
+)
+
+positions_technicolour_jersey <- tibble(
+  Rider = results_list$all_rounder_points$Rider,
+  `Technicolour Jersey` = results_list$all_rounder_points$Position
+)
+
+positions_green_jersey <- tibble(
+  Rider = results_list$green_jersey_league$Rider,
+  `Green Jersey` = results_list$green_jersey_league$Position
+)
+
+positions_polka_jersey <- tibble(
+  Rider = results_list$polka_jersey_league$Rider,
+  `Polka Dot Jersey` = results_list$polka_jersey_league$Position
+)
+
+art_rider_individual_performance <-
+  results_list$GC_time_least |>
+  mutate( art_rider = str_detect(Rider, "\\[ART\\]$")) |>
+  filter(art_rider == TRUE) |>
+  select(Rider, category, gender) |>
+  left_join(positions_yellow_jersey_eGap, by = join_by(Rider)) |>
+  left_join(positions_yellow_jersey_time, by = join_by(Rider)) |>
+  left_join(positions_technicolour_jersey, by = join_by(Rider)) |>
+  left_join(positions_green_jersey, by = join_by(Rider)) |>
+  left_join(positions_polka_jersey, by = join_by(Rider)) |>
+  mutate(
+    best_position = pmin(
+      `Yellow Jersey (eGap)`,
+      `Yellow Jersey (time)`,
+      `Technicolour Jersey`,
+      `Green Jersey`,
+      `Polka Dot Jersey`)
+  ) |>
+  filter(best_position <= 10) |>
+  select(-best_position)
+  
+
+```
+
+
+
+Summary statistics
+======================
+
+> Tour series 3 - Tour Britannia - Last updated: `r last_updated` 
+
+Row
+------------------------
+### team position (mixed)
+```{r}
+valueBox(current_position_mixed, icon = "fa-ranking-star", color = "#101010")
+```
+
+### team position (men)
+```{r}
+valueBox(current_position_men, icon = "fa-ranking-star", color = "#101010")
+```
+
+### team position (women)
+```{r}
+valueBox(current_position_women, icon = "fa-ranking-star", color = "#101010")
+```
+
+Row
+------------------------
+### riders have raced
+```{r}
+valueBox(total_racing_riders, icon = "fa-people-group", color = "#101010")
+```
+
+### stages raced
+```{r}
+valueBox(total_races, icon = "fa-person-biking", color = "#101010")
+```
+
+### riders have raced all stages
+```{r}
+valueBox(total_full_tour_riders, icon = "fa-trophy", color = "#101010")
+```
+
+Row
+------------------------
+### time spent racing
+```{r}
+valueBox(
+  paste0(total_time_raced@day, "d ",total_time_raced@hour, "h"), 
+  icon = "fa-stopwatch", color = "#101010")
+```
+
+### km ridden
+```{r}
+valueBox(format(sum(ART_riders_stage_breakdown$Distance), big.mark = ","), icon = "fa-road", color = "#101010")
+```
+
+### m climbed
+```{r}
+valueBox(
+  format(sum(ART_riders_stage_breakdown$Climbing), big.mark = ",", scientific = FALSE), 
+  icon = "fa-mountain-sun", color = "#101010")
+```
+
+
+Team riders
+======================
+
+### ART riders
+```{r}
+ART_rider_table |>
+  DT::datatable(
+    style = "auto",
+    rownames = FALSE,
+    options = list(
+      initComplete = JS(
+        "function(settings, json) {",
+        "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+        "}"),
+      pageLength = -1,
+      dom = 'ft',
+      order = list(1, 'asc')
+    ))
+```
+
+
+Participation stats
+======================
+
+### How many ART riders rode each stage?
+```{r}
+ART_riders_by_stage <-
+  ART_riders_stage_breakdown |>
+  group_by(Stage) |>
+  summarise(num_riders = n(), .groups = "drop")
+
+ART_riders_by_stage |>
+  ggplot(mapping = aes(x = Stage, y = num_riders, fill = Stage)) +
+  theme_linedraw() +
+  geom_col(show.legend = FALSE) +
+  geom_text(aes(label = num_riders), vjust = 1.5, colour = "white") +
+  scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8))
+```
+
+### How many stages has each ART rider ridden?
+```{r}
+ART_riders_total_stages <-
+  ART_rider_table |>
+  group_by(Stages) |>
+  summarise(num_riders = n(), .groups = "drop")
+  
+ART_riders_total_stages |>
+  ggplot(mapping = aes(x = (Stages), y = num_riders, fill = (Stages))) +
+  theme_linedraw() +
+  geom_col(show.legend = FALSE) +
+  geom_text(aes(label = num_riders), vjust = 1.5, colour = "white") +
+  scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8))
+  
+```
+
+
+Raw points
+======================
+
+### How many raw points has ART earned each stage?
+```{r}
+ART_league_results |>
+  ggplot(mapping = aes(x = Stage, y = `Team points raw`, fill = Stage.y)) +
+  theme_linedraw() +
+  geom_col(show.legend = FALSE) +
+  geom_text(aes(label = `Team points raw`), vjust = 1.5, colour = "white")
+```
+
+### ART cumulative raw points vs other teams
+```{r}
+team_stage_summary |>
+  ggplot(mapping = aes(x = Stage, y = cumulative_points_raw, group = team)) +
+  theme_linedraw() +
+  geom_line(color = "grey90")+
+  geom_line(mapping = aes(x = Stage, y = art_cumulative_points_raw, group = team))
+
+```
+
+
+League points
+======================
+
+### How many league points has ART earned each stage? (Max 50)
+```{r}
+ART_league_results |>
+  ggplot(mapping = aes(x = Stage, y = `Team league points`, fill = Stage.y)) +
+  theme_linedraw() +
+  geom_col(show.legend = FALSE) +
+  geom_text(aes(label = `Team league points`), vjust = 1.5, colour = "white")
+```
+
+
+### ART cumulative league points vs other teams
+```{r}
+team_stage_summary |>
+  ggplot(mapping = aes(x = Stage, y = cumulative_league_points, group = team)) +
+  theme_linedraw() +
+  geom_line(color = "grey90")+
+  geom_line(mapping = aes(x = Stage, y = art_cumulative_league_points, group = team))
+```
+
+
+Individual top 10s
+======================
+
+### ART riders with top 10 positions
+```{r}
+
+ranking_bands <- c(1,2,3,10)
+ranking_bands_colous <- c('gold', '#c0c0c0', 'orange', '#90EE90', 'white')
+
+art_rider_individual_performance |>
+  DT::datatable(
+    #style = "auto",
+    rownames = FALSE,
+    options = list(
+      initComplete = JS(
+        "function(settings, json) {",
+        "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+        "}"),
+      class = list(stripe = FALSE),
+      pageLength = -1,
+      dom = 'ft',
+      order = list(1, 'asc')
+    )) |>
+  formatStyle('Yellow Jersey (eGap)', backgroundColor = styleInterval(ranking_bands, ranking_bands_colous)) |>
+  formatStyle('Yellow Jersey (time)', backgroundColor = styleInterval(ranking_bands, ranking_bands_colous)) |>
+  formatStyle('Technicolour Jersey', backgroundColor = styleInterval(ranking_bands, ranking_bands_colous)) |>
+  formatStyle('Green Jersey', backgroundColor = styleInterval(ranking_bands, ranking_bands_colous)) |>
+  formatStyle('Polka Dot Jersey', backgroundColor = styleInterval(ranking_bands, ranking_bands_colous))
+  
+  
+```
