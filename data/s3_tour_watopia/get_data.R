@@ -30,6 +30,7 @@ names(rider_list) <- c(
   "Gender",
   "zFTP",
   "Weight",
+  "WKG",
   "ZRapp",
   "vELO",
   "age_group",
@@ -45,7 +46,7 @@ url_results_list <- "https://flammerougeracing.com/?page=series1&id=1"
 rider_category <- tibble(category = c("CAP","DRA", "CRP", "GHT", "HAB", "BON", "CAY", "JLP", "PEP", "BEL"))
 tour_name <- "FRW"
 season <- 3
-racenoref <- 6
+racenoref <- 8
 disptypemf <- tibble(gender = c("M","F")) #M for female, and not used for male
 
 post_query <-
